@@ -217,8 +217,6 @@ public class Hw1Grp0 {
         //Start
         hw1.hashedJoin(R, S, joinR, joinS, resRn, resSn);
 
-
-
     }
 
 
