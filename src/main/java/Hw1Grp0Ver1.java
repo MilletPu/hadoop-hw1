@@ -20,14 +20,13 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 
 /**
- * Created by milletpu on 2017/3/24.
+ * Created by milletpu on 2017/3/28.
  * E-mail: pujun@cnic.cn
  *
- * The new class that consider the hash collision! Adopt it!
+ * The old class that doesn't consider the hash collision! Abandon it!
  */
 
-public class Hw1Grp0 {
-
+public class Hw1Grp0Ver1 {
     /**
      * Read files from hdfs.
      * @param fileName File name. (Take care of the address!)
@@ -89,90 +88,41 @@ public class Hw1Grp0 {
         String eachLineR;
         while ((eachLineR = R.readLine())!=null) {
             String[] lineR = eachLineR.split("\\|");
-            String temp = lineR[joinR];
-            if(!htR.containsKey(temp)) {
-                htR.put(temp, eachLineR);
-            }else{
-                while(htR.containsKey(temp)){
-                    temp = temp + "*";
-                    //System.out.println(temp);   //ok
-                }
-                htR.put(temp, eachLineR);
-            }
+            htR.put(lineR[joinR], eachLineR);
         }
 
         //Match S join key with R hashed table.
-        Hashtable htS = new Hashtable();
         String eachLineS;
         while ((eachLineS = S.readLine())!=null) {
             String[] lineS = eachLineS.split("\\|");
-            String temp = lineS[joinS];
-            if(!htS.containsKey(temp)) {
-                htS.put(temp, eachLineS);
-            }else{
-                while(htS.containsKey(temp)){
-                    temp = temp + "*";
-                    //System.out.println(temp);   //no
-                }
-                htS.put(temp, eachLineS);
-            }
-
-            String temp4R = temp;
-            while(htR.containsKey(temp4R) && htS.containsKey(temp)){
+            if(htR.containsKey(lineS[joinS])){
                 //Put Rn
                 for (int i = 0; i < resR.length; i++) {
+                    String[] lineR = htR.get(lineS[joinS]).toString().split("\\|");
 
-                    String[] lineR = htR.get(temp4R).toString().split("\\|");  //here get
-
-                    Put put = new Put(temp4R.replaceAll("\\*","").getBytes());
-                    String Rn;
-                    if (numStar(temp4R)!=0){
-                        //System.out.println(numStar(temp4R));
-                        Rn = "R" + resR[i] + "." + numStar(temp4R);
-                    }else{
-                        Rn = "R" + resR[i];
-                    }
-
+                    Put put = new Put(lineR[joinR].getBytes());
+                    String Rn = "R" + resR[i];
                     String Rnres = lineR[resR[i]];
                     put.add("res".getBytes(), Rn.getBytes(), Rnres.getBytes());
                     table.put(put);
-                    //System.out.println("put successfully R");
+                    System.out.println("put successfully R");
                 }
 
                 //Put Sn
                 for (int j = 0; j < resS.length ; j++) {
-                    Put put = new Put(temp.replaceAll("\\*","").getBytes());
-                    String Sn;
-
-                    if (numStar(temp)!= 0) {
-                        Sn = "S" + resS[j] + "." + numStar(temp);
-                    }else{
-                        Sn = "S" + resS[j];
-                    }
-
+                    Put put = new Put(lineS[joinS].getBytes());
+                    String Sn = "S" + resS[j];
                     String Snres = lineS[resS[j]];
                     put.add("res".getBytes(), Sn.getBytes(), Snres.getBytes());
                     table.put(put);
-                    //System.out.println("put successfully S");
-                }
-                temp4R = temp4R + "*";
+                    System.out.println("put successfully S");
 
+                }
             }
         }
 
         table.close();
 
-    }
-
-    /**
-     * Count the duplicated raws. Input a string and return the number of "*".
-     * @param input Input String.
-     * @return The number of "*".
-     */
-    private int numStar(String input){
-        String regex = "\\*";
-        int count = (" " + input + " ").split (regex).length - 1;
-        return count;
     }
 
 
@@ -182,7 +132,7 @@ public class Hw1Grp0 {
      * @throws IOException
      */
     public static void main(String[] args) throws IOException {
-        Hw1Grp0 hw1 = new Hw1Grp0();
+        Hw1Grp0Ver1 hw1 = new Hw1Grp0Ver1();
 
         //File address of R and S
         String R = args[0].replace("R=", "");
@@ -220,6 +170,4 @@ public class Hw1Grp0 {
 
 
     }
-
-
 }
