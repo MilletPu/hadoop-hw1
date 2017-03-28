@@ -188,13 +188,25 @@ public class Hw1Grp0 {
     public static void main(String[] args) throws IOException {
         System.out.println("Parsing the input command................");
         //File address of R and S
-        String R = args[0].replace("R=", "");
-        String S = args[1].replace("S=", "");
+        String R, S;
+        if(args[0].startsWith("R") && args[1].startsWith("S")){
+            R = args[0].replace("R=", "");
+            S = args[1].replace("S=", "");
+        }else {
+            S = args[0].replace("R=", "");
+            R = args[1].replace("S=", "");
+        }
 
         //Join key
         String join[] = args[2].replace("join:", "").split("=");
-        int joinR = Integer.parseInt(join[0].replaceAll("[^0-9]", ""));
-        int joinS = Integer.parseInt(join[1].replaceAll("[^0-9]", ""));
+        int joinR, joinS;
+        if (join[0].startsWith("R") && join[1].startsWith("S")) {
+            joinR = Integer.parseInt(join[0].replaceAll("[^0-9]", ""));
+            joinS = Integer.parseInt(join[1].replaceAll("[^0-9]", ""));
+        }else{
+            joinS = Integer.parseInt(join[0].replaceAll("[^0-9]", ""));
+            joinR = Integer.parseInt(join[1].replaceAll("[^0-9]", ""));
+        }
 
         //Result columns
         String res[] = args[3].replace("res:", "").split(",");
@@ -209,13 +221,10 @@ public class Hw1Grp0 {
             }
         }
         int[] resRn = new int[resR.size()]; //ArrayList to array
-        for (int i = 0; i < resR.size(); i++) {
-            resRn[i] = resR.get(i);
-        }
+        for (int i = 0; i < resR.size(); i++) resRn[i] = resR.get(i);
+
         int[] resSn = new int[resS.size()];
-        for (int i = 0; i < resS.size(); i++) {
-            resSn[i] = resS.get(i);
-        }
+        for (int i = 0; i < resS.size(); i++) resSn[i] = resS.get(i);
 
         //Start
         System.out.println("Starting the join process................");
