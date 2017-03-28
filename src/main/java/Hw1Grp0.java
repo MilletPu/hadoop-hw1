@@ -60,6 +60,7 @@ public class Hw1Grp0 {
     private void hashedJoin(String fileR, String fileS, int joinR, int joinS, int[] resR, int[] resS) throws IOException {
         //Write to HBase
         Logger.getRootLogger().setLevel(Level.WARN);
+        System.out.println("Creating the table................");
         // create table descriptor
         String tableName= "Result";
         HTableDescriptor htd = new HTableDescriptor(TableName.valueOf(tableName));
@@ -76,7 +77,7 @@ public class Hw1Grp0 {
             hAdmin.deleteTable(tableName);
         }
         hAdmin.createTable(htd);
-        System.out.println("table "+tableName+ " created successfully!!");
+        System.out.println("Table \'"+tableName+ "\' created successfully................");
         hAdmin.close();
         HTable table = new HTable(configuration,tableName);
 
@@ -85,6 +86,7 @@ public class Hw1Grp0 {
         BufferedReader S = readFileHdfs(fileS);
 
         //Create the hashed table for R.
+        System.out.println("Creating hash table for file R................");
         Hashtable htR = new Hashtable();
         String eachLineR;
         while ((eachLineR = R.readLine())!=null) {
@@ -101,6 +103,7 @@ public class Hw1Grp0 {
             }
         }
 
+        System.out.println("Matching file S with hash table of R by join key................");
         //Match S join key with R hashed table.
         Hashtable htS = new Hashtable();
         String eachLineS;
@@ -161,6 +164,7 @@ public class Hw1Grp0 {
         }
 
         table.close();
+        System.out.println("Successfully Done................");
 
     }
 
@@ -182,8 +186,7 @@ public class Hw1Grp0 {
      * @throws IOException
      */
     public static void main(String[] args) throws IOException {
-        Hw1Grp0 hw1 = new Hw1Grp0();
-
+        System.out.println("Parsing the input command................");
         //File address of R and S
         String R = args[0].replace("R=", "");
         String S = args[1].replace("S=", "");
@@ -215,6 +218,8 @@ public class Hw1Grp0 {
         }
 
         //Start
+        System.out.println("Starting the join process................");
+        Hw1Grp0 hw1 = new Hw1Grp0();
         hw1.hashedJoin(R, S, joinR, joinS, resRn, resSn);
 
     }
