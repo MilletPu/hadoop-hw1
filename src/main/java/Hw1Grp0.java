@@ -40,9 +40,7 @@ public class Hw1Grp0 {
         Path path = new Path(fileAdd);
         FSDataInputStream in_stream = fs.open(path);
 
-        BufferedReader in = new BufferedReader(new InputStreamReader(in_stream));
-
-        return in;
+        return new BufferedReader(new InputStreamReader(in_stream));
 
     }
 
@@ -55,7 +53,7 @@ public class Hw1Grp0 {
      * @param joinS The join key of S.
      * @param resR The result columns of R.
      * @param resS The result columns of S.
-     * @throws IOException
+     * @throws IOException Throw IOException
      */
     private void hashedJoin(String fileR, String fileS, int joinR, int joinS, int[] resR, int[] resS) throws IOException {
         //Write to HBase
@@ -183,7 +181,7 @@ public class Hw1Grp0 {
     /**
      * Main function.
      * @param args R=/fileRAddress S=/fileSAddress join:Rx=Sy res:Ri,Rj,Sm,Sn
-     * @throws IOException
+     * @throws IOException Throw IOException
      */
     public static void main(String[] args) throws IOException {
         System.out.println("Parsing the input command................");
