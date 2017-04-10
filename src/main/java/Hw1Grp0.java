@@ -27,7 +27,6 @@ import java.util.Hashtable;
  */
 
 public class Hw1Grp0 {
-
     /**
      * Read files from hdfs.
      * @param fileName File name. (Take care of the address!)
@@ -40,7 +39,6 @@ public class Hw1Grp0 {
         FSDataInputStream in_stream = fs.open(path);
         return new BufferedReader(new InputStreamReader(in_stream));
     }
-
 
     /**
      * Hashed join process function.
