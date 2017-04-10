@@ -23,10 +23,10 @@ import java.util.Hashtable;
  * Created by milletpu on 2017/3/24.
  * E-mail: pujun@cnic.cn
  *
- * The new class that consider the hash collision!
+ * The new class that consider the hash collision! Adopt it!
  */
 
-public class Hw1Grp0 {
+public class Hw1Grp0_v1 {
 
     /**
      * Read files from hdfs.
@@ -34,11 +34,14 @@ public class Hw1Grp0 {
      */
     private BufferedReader readFileHdfs(String fileName) throws IOException {
         String fileAdd= "hdfs://localhost:9000" + fileName;
+
         Configuration conf = new Configuration();
         FileSystem fs = FileSystem.get(URI.create(fileAdd), conf);
         Path path = new Path(fileAdd);
         FSDataInputStream in_stream = fs.open(path);
+
         return new BufferedReader(new InputStreamReader(in_stream));
+
     }
 
 
@@ -83,9 +86,7 @@ public class Hw1Grp0 {
         //Create the hashed table for R.
         System.out.println("Creating hash table for file R................");
         Hashtable htR = new Hashtable();
-        Hashtable htS = new Hashtable();
         String eachLineR;
-        String eachLineS;
         while ((eachLineR = R.readLine())!=null) {
             String[] lineR = eachLineR.split("\\|");
             String temp = lineR[joinR];
@@ -94,10 +95,17 @@ public class Hw1Grp0 {
             }else{
                 while(htR.containsKey(temp)){
                     temp = temp + "*";
+                    //System.out.println(temp);   //ok
                 }
                 htR.put(temp, eachLineR);
             }
         }
+
+        System.out.println("Matching file S with hash table of R by join key................");
+        //Match S join key with R hashed table.
+        Hashtable htS = new Hashtable();
+        String eachLineS;
+        int putt = 0;
         while ((eachLineS = S.readLine())!=null) {
             String[] lineS = eachLineS.split("\\|");
             String temp = lineS[joinS];
@@ -110,60 +118,73 @@ public class Hw1Grp0 {
                 }
                 htS.put(temp, eachLineS);
             }
-        }
 
-        //Match S join key with R hashed table.
-        System.out.println("Matching file S with hash table of R by join key................");
-        BufferedReader S1 = readFileHdfs(fileS);
-        String eachLineS1;
-        Hashtable already = new Hashtable(); //judge whether S has been dealt with
-        while ((eachLineS1 = S1.readLine())!=null) {
-            String[] lineS1 = eachLineS1.split("\\|");
             int num = 0;
-            String temp4R = lineS1[joinS]; //same
-            if(!already.containsKey(temp4R)) {
-                already.put(temp4R,0);
-                while (htR.containsKey(temp4R)) {
-                    String temp4S = lineS1[joinS];
-                    while (htS.containsKey(temp4S)) {
-                        //Put Rn
-                        for (int i = 0; i < resR.length; i++) {
-                            String[] lineR = htR.get(temp4R).toString().split("\\|");  //here get
-                            Put put = new Put(temp4R.replaceAll("\\*", "").getBytes());
-                            String Rn;
-                            if (num != 0) {
-                                Rn = "R" + resR[i] + "." + num;
-                            } else {
-                                Rn = "R" + resR[i];
-                            }
-                            String Rnres = lineR[resR[i]];
-                            put.add("res".getBytes(), Rn.getBytes(), Rnres.getBytes());
-                            table.put(put);
+            String temp4R = lineS[joinS]; //same
+            while(htR.containsKey(temp4R)) {
+                String temp4S = lineS[joinS];
+                while(htS.containsKey(temp4S)) {
+                    //Put Rn
+                    for (int i = 0; i < resR.length; i++) {
+                        String[] lineR = htR.get(temp4R).toString().split("\\|");  //here get
+                        Put put = new Put(temp4R.replaceAll("\\*", "").getBytes());
+                        String Rn;
+                        if (num != 0) {
+                            Rn = "R" + resR[i] + "." + num;
+                        } else {
+                            Rn = "R" + resR[i];
                         }
 
-                        //Put Sn
-                        for (int j = 0; j < resS.length; j++) {
-                            String[] lineSRepeat = htS.get(temp4S).toString().split("\\|");
-                            Put put = new Put(temp4S.replaceAll("\\*", "").getBytes());
-                            String Sn;
-                            if (num != 0) {
-                                Sn = "S" + resS[j] + "." + num;
-                            } else {
-                                Sn = "S" + resS[j];
-                            }
-                            String Snres = lineSRepeat[resS[j]];
-                            put.add("res".getBytes(), Sn.getBytes(), Snres.getBytes());
-                            table.put(put);
-                        }
-                        temp4S = temp4S + "*";
-                        num++;
+                        String Rnres = lineR[resR[i]];
+                        put.add("res".getBytes(), Rn.getBytes(), Rnres.getBytes());
+                        table.put(put);
+                        putt++;
+
                     }
-                    temp4R = temp4R + "*";
+
+                    //Put Sn
+                    for (int j = 0; j < resS.length; j++) {
+                        String[] lineSRepeat = htS.get(temp4S).toString().split("\\|");
+                        Put put = new Put(temp4S.replaceAll("\\*", "").getBytes());
+                        String Sn;
+
+                        if (num != 0) {
+                            Sn = "S" + resS[j] + "." + num;
+                        } else {
+                            Sn = "S" + resS[j];
+                        }
+
+                        String Snres = lineSRepeat[resS[j]];
+                        put.add("res".getBytes(), Sn.getBytes(), Snres.getBytes());
+                        table.put(put);
+                        putt++;
+
+                    }
+
+                    temp4S = temp4S + "*";
+                    num ++;
                 }
+
+                temp4R = temp4R + "*";
             }
+
         }
+
         table.close();
         System.out.println("Successfully Done................");
+        System.out.println(putt);
+
+    }
+
+    /**
+     * Count the duplicated raws. Input a string and return the number of "*".
+     * @param input Input String.
+     * @return The number of "*".
+     */
+    private int numStar(String input){
+        String regex = "\\*";
+        int count = (" " + input + " ").split (regex).length - 1;
+        return count;
     }
 
 
@@ -174,7 +195,6 @@ public class Hw1Grp0 {
      */
     public static void main(String[] args) throws IOException {
         System.out.println("Parsing the input command................");
-
         //File address of R and S
         String R, S;
         if(args[0].startsWith("R") && args[1].startsWith("S")){
@@ -210,12 +230,16 @@ public class Hw1Grp0 {
         }
         int[] resRn = new int[resR.size()]; //ArrayList to array
         for (int i = 0; i < resR.size(); i++) resRn[i] = resR.get(i);
+
         int[] resSn = new int[resS.size()];
         for (int i = 0; i < resS.size(); i++) resSn[i] = resS.get(i);
 
         //Start
         System.out.println("Starting the join process................");
-        Hw1Grp0 hw1 = new Hw1Grp0();
+        Hw1Grp0_v1 hw1 = new Hw1Grp0_v1();
         hw1.hashedJoin(R, S, joinR, joinS, resRn, resSn);
+
     }
+
+
 }
