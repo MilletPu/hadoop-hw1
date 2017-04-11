@@ -104,7 +104,6 @@ public class Hw1Grp0 {
             }else{
                 while(htS.containsKey(temp)){
                     temp = temp + "*";
-                    //System.out.println(temp);   //no
                 }
                 htS.put(temp, eachLineS);
             }
@@ -115,6 +114,7 @@ public class Hw1Grp0 {
         BufferedReader S1 = readFileHdfs(fileS);
         String eachLineS1;
         Hashtable already = new Hashtable(); //judge whether S has been dealt with
+        int putt = 0;
         while ((eachLineS1 = S1.readLine())!=null) {
             String[] lineS1 = eachLineS1.split("\\|");
             int num = 0;
@@ -124,10 +124,10 @@ public class Hw1Grp0 {
                 while (htR.containsKey(temp4R)) {
                     String temp4S = lineS1[joinS];
                     while (htS.containsKey(temp4S)) {
+                        Put put = new Put(temp4S.replaceAll("\\*", "").getBytes());
                         //Put Rn
                         for (int i = 0; i < resR.length; i++) {
-                            String[] lineR = htR.get(temp4R).toString().split("\\|");  //here get
-                            Put put = new Put(temp4R.replaceAll("\\*", "").getBytes());
+                            String[] lineR = htR.get(temp4R).toString().split("\\|");
                             String Rn;
                             if (num != 0) {
                                 Rn = "R" + resR[i] + "." + num;
@@ -136,25 +136,24 @@ public class Hw1Grp0 {
                             }
                             String Rnres = lineR[resR[i]];
                             put.add("res".getBytes(), Rn.getBytes(), Rnres.getBytes());
-                            table.put(put);
                         }
 
                         //Put Sn
                         for (int j = 0; j < resS.length; j++) {
-                            String[] lineSRepeat = htS.get(temp4S).toString().split("\\|");
-                            Put put = new Put(temp4S.replaceAll("\\*", "").getBytes());
+                            String[] lineS = htS.get(temp4S).toString().split("\\|");
                             String Sn;
                             if (num != 0) {
                                 Sn = "S" + resS[j] + "." + num;
                             } else {
                                 Sn = "S" + resS[j];
                             }
-                            String Snres = lineSRepeat[resS[j]];
+                            String Snres = lineS[resS[j]];
                             put.add("res".getBytes(), Sn.getBytes(), Snres.getBytes());
-                            table.put(put);
                         }
-                        temp4S = temp4S + "*";
+                        table.put(put);
+                        putt++;
                         num++;
+                        temp4S = temp4S + "*";
                     }
                     temp4R = temp4R + "*";
                 }
@@ -162,6 +161,7 @@ public class Hw1Grp0 {
         }
         table.close();
         System.out.println("Successfully Done................");
+        System.out.println(putt);
     }
 
 
