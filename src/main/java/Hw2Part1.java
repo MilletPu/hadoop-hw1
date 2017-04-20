@@ -20,8 +20,8 @@ public class Hw2Part1 {
 
     // sb4tF0D0 yH12ZA30gq 296.289
     // oHuCS oHuCS 333.962
-    // ouput this: <key = "source destination", value = double>
-
+    // ouput this: <key = "source destination", value = "1 duration">
+    // <"sb4tF0D0 yH12ZA30gq", "1 296.289">
     public static class SourceMapper extends Mapper<Object, Text, Text, Text>{
 
         private Text source_dest = new Text();
@@ -30,16 +30,19 @@ public class Hw2Part1 {
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
             //Get the [source dest]
             String[] eachLine = value.toString().split(" ");
-            source_dest.set(eachLine[0] + " " + eachLine[1]);
-            one_duration.set("1" + " " + eachLine[2]);
-            context.write(source_dest, one_duration);
+            if (eachLine.length == 3) {
+                source_dest.set(eachLine[0] + " " + eachLine[1]);
+                one_duration.set("1" + " " + eachLine[2]);
+                context.write(source_dest, one_duration);
+            }
         }
     }
 
     // sb4tF0D0 yH12ZA30gq 1 296.289
     // oHuCS oHuCS 1 333.962
     // sb4tF0D0 yH12ZA30gq 1 296.289
-    // output this: sb4tF0D0 yH12ZA30gq 2 296.289
+    // output this: <key = "source destination", value = "localSum duration">
+    // <"sb4tF0D0 yH12ZA30gq", "2 296.289">
     public static class SumCombiner extends Reducer<Text, Text, Text, Text> {
         private Text count_duration= new Text();
 
@@ -60,7 +63,8 @@ public class Hw2Part1 {
     // sb4tF0D0 yH12ZA30gq 1 296.289
     // oHuCS oHuCS 1 333.962
     // sb4tF0D0 yH12ZA30gq 1 296.289
-    // output this: sb4tF0D0 yH12ZA30gq 2 296.289
+    // output this: <key = "source destination", value = "globalSum duration">
+    // <"sb4tF0D0 yH12ZA30gq", "2 296.289">
     public static class SumReducer extends Reducer<Text, Text, Text, Text> {
         private Text count_duration= new Text();
 
