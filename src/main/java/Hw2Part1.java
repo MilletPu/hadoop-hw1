@@ -10,6 +10,7 @@ import org.apache.hadoop.util.GenericOptionsParser;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 
 /**
  * Created by milletpu on 2017/4/14.
@@ -52,8 +53,12 @@ public class Hw2Part1 {
             String[] temp;
             for (Text val : values) {
                 temp = val.toString().split(" ");
-                duration = duration + Double.parseDouble(temp[1]);
-                sum = sum + Integer.parseInt(temp[0]);
+                try {
+                    duration = duration + Double.parseDouble(temp[1]);
+                    sum = sum + Integer.parseInt(temp[0]);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
             }
             count_duration.set(sum + " " + duration);
             context.write(key, count_duration);
@@ -74,13 +79,18 @@ public class Hw2Part1 {
             String[] temp;
             for (Text val : values) {
                 temp = val.toString().split(" ");
-                duration = duration + Double.parseDouble(temp[1]);
-                sum = sum + Integer.parseInt(temp[0]);
+                try {
+                    duration = duration + Double.parseDouble(temp[1]);
+                    sum = sum + Integer.parseInt(temp[0]);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
             }
             double avgDuration = duration/sum;
             BigDecimal res = new BigDecimal(avgDuration);
+            DecimalFormat df = new DecimalFormat("#.000");
             avgDuration = res.setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue();
-            count_duration.set(sum + " " + avgDuration);
+            count_duration.set(sum + " " + df.format(avgDuration));
             context.write(key, count_duration);
         }
     }
