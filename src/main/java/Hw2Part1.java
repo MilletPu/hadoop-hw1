@@ -10,19 +10,23 @@ import org.apache.hadoop.util.GenericOptionsParser;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
 
 /**
  * Created by milletpu on 2017/4/14.
  * E-mail: pujun@cnic.cn
+ *
+ * Use map and reduce to count the times dor paired addresses.
  */
 
 public class Hw2Part1 {
 
-    // sb4tF0D0 yH12ZA30gq 296.289
-    // oHuCS oHuCS 333.962
-    // ouput this: <key = "source destination", value = "1 duration">
-    // <"sb4tF0D0 yH12ZA30gq", "1 296.289">
+    /* Mapper.
+     *
+     * sb4tF0D0 yH12ZA30gq 296.289
+     * oHuCS oHuCS 333.962
+     * ouput this: <key = "source destination", value = "1 duration">
+     * <"sb4tF0D0 yH12ZA30gq", "1 296.289">
+     */
     public static class SourceMapper extends Mapper<Object, Text, Text, Text>{
 
         private Text source_dest = new Text();
@@ -39,11 +43,16 @@ public class Hw2Part1 {
         }
     }
 
-    // sb4tF0D0 yH12ZA30gq 1 296.289
-    // oHuCS oHuCS 1 333.962
-    // sb4tF0D0 yH12ZA30gq 1 296.289
-    // output this: <key = "source destination", value = "localSum duration">
-    // <"sb4tF0D0 yH12ZA30gq", "2 296.289">
+
+    /**
+     * Combiner, maybe redundant.
+     *
+     * sb4tF0D0 yH12ZA30gq 1 296.289
+     * oHuCS oHuCS 1 333.962
+     * sb4tF0D0 yH12ZA30gq 1 296.289
+     * output this: <key = "source destination", value = "localSum duration">
+     * <"sb4tF0D0 yH12ZA30gq", "2 296.289">
+     */
     public static class SumCombiner extends Reducer<Text, Text, Text, Text> {
         private Text count_duration= new Text();
 
@@ -65,11 +74,15 @@ public class Hw2Part1 {
         }
     }
 
-    // sb4tF0D0 yH12ZA30gq 1 296.289
-    // oHuCS oHuCS 1 333.962
-    // sb4tF0D0 yH12ZA30gq 1 296.289
-    // output this: <key = "source destination", value = "globalSum duration">
-    // <"sb4tF0D0 yH12ZA30gq", "2 296.289">
+    /**
+     * Reducer.
+     *
+     * sb4tF0D0 yH12ZA30gq 1 296.289
+     * oHuCS oHuCS 1 333.962
+     * sb4tF0D0 yH12ZA30gq 1 296.289
+     * output this: <key = "source destination", value = "localSum duration">
+     * <"sb4tF0D0 yH12ZA30gq", "2 296.289">
+     */
     public static class SumReducer extends Reducer<Text, Text, Text, Text> {
         private Text count_duration= new Text();
 
@@ -86,17 +99,21 @@ public class Hw2Part1 {
                     e.printStackTrace();
                 }
             }
+
             double avgDuration = duration/sum;
             BigDecimal res = new BigDecimal(avgDuration);
-            DecimalFormat df = new DecimalFormat("#.000");
-            avgDuration = res.setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue();
-            count_duration.set(sum + " " + df.format(avgDuration));
+            avgDuration = res.setScale(4, BigDecimal.ROUND_HALF_UP).doubleValue();
+            count_duration.set(sum + " " + String.format("%.3f",avgDuration));
             context.write(key, count_duration);
         }
     }
 
+    /**
+     * Main function.
+     */
     public static void main(String[] args) throws Exception {
         Configuration conf = new Configuration();
+        conf.set("mapred.textoutputformat.separator", " ");
         String[] otherArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
         if (otherArgs.length < 2) {
             System.err.println("Usage: Hw2Part1 <in> [<in>...] <out>");
