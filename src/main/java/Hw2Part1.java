@@ -9,7 +9,6 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 
 /**
  * Created by milletpu on 2017/4/14.
@@ -101,8 +100,6 @@ public class Hw2Part1 {
             }
 
             double avgDuration = duration/sum;
-            BigDecimal res = new BigDecimal(avgDuration);
-            avgDuration = res.setScale(4, BigDecimal.ROUND_HALF_UP).doubleValue();
             count_duration.set(sum + " " + String.format("%.3f",avgDuration));
             context.write(key, count_duration);
         }
